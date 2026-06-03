@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Escale — Votre compagnon de voyage</title>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#0A0F0D;color:#E8F0EB;min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.font-syne{font-family:'Syne',sans-serif}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* GLASS CARDS */
+.glass{background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:20px}
+.glass-sm{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px}
+.glass-teal{background:rgba(13,148,136,0.15);border:1px solid rgba(13,148,136,0.3);border-radius:16px}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,#0D9488,#059669);color:#fff;border:none;border-radius:14px;padding:14px 28px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:all .2s;letter-spacing:.3px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,148,136,0.4)}
+.btn-secondary{background:rgba(255,255,255,0.08);color:#E8F0EB;border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:12px 20px;font-family:'Inter',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{background:rgba(255,255,255,0.12)}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:999px;font-size:14px;cursor:pointer;transition:all .2s;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#CBD5C0;white-space:nowrap;font-weight:500}
+.chip.active,.chip:hover{background:rgba(13,148,136,0.25);border-color:#0D9488;color:#5EEAD4}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* TABS */
+.tab-bar{display:flex;gap:6px;background:rgba(0,0,0,0.3);padding:6px;border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;color:#6B7F6E}
+.tab-btn.active{background:rgba(13,148,136,0.3);color:#5EEAD4}
+
+/* BOOKING LINK CARD */
+.book-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);margin-bottom:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:inherit}
+.book-card:hover{background:rgba(13,148,136,0.15);border-color:rgba(13,148,136,0.4);transform:translateX(2px)}
+.book-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.book-arrow{margin-left:auto;opacity:.5;font-size:16px}
+
+/* PROFILE TYPE CARDS */
+.profile-type-card{border-radius:24px;padding:28px 20px;cursor:pointer;transition:all .3s;border:2px solid transparent;text-align:center;position:relative;overflow:hidden}
+.profile-type-card:hover{transform:translateY(-4px)}
+.profile-type-card.selected{border-color:#0D9488;box-shadow:0 0 0 1px rgba(13,148,136,0.3),0 12px 40px rgba(13,148,136,0.2)}
+
+/* STEP CARD */
+.step-card{border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);margin-bottom:12px}
+.step-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.step-body{padding:0 16px 16px;display:none}
+.step-body.open{display:block}
+.step-link{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.2);margin-top:8px;font-size:13px;text-decoration:none;color:#5EEAD4;transition:all .2s}
+.step-link:hover{background:rgba(13,148,136,0.2)}
+
+/* RADIUS PILL */
+.radius-pill{padding:10px 20px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;color:#9AA89D}
+.radius-pill.active{background:rgba(13,148,136,0.2);border-color:#0D9488;color:#5EEAD4}
+
+/* BOTTOM NAV */
+.pill-nav{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(15,25,20,0.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:8px 12px;display:flex;gap:4px;z-index:100;min-width:280px;justify-content:space-around}
+.pill-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:999px;border:none;background:transparent;cursor:pointer;transition:all .2s;color:#6B7F6E;font-size:10px;font-weight:600;font-family:'Syne',sans-serif}
+.pill-btn.active{background:rgba(13,148,136,0.25);color:#5EEAD4}
+.pill-btn span.icon{font-size:20px}
+
+/* DEST CARD */
+.dest-card{border-radius:20px;overflow:hidden;cursor:pointer;position:relative;height:180px;transition:all .3s}
+.dest-card:hover{transform:scale(1.02)}
+.dest-card img{width:100%;height:100%;object-fit:cover}
+.dest-card .overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.1) 60%)}
+.dest-card .info{position:absolute;bottom:0;left:0;right:0;padding:14px}
+
+/* SHIMMER */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.shimmer{background:linear-gradient(90deg,rgba(255,255,255,0.03) 0%,rgba(13,148,136,0.15) 50%,rgba(255,255,255,0.03) 100%);background-size:200% 100%;animation:shimmer 2s infinite}
+
+/* WEATHER BADGE */
+.weather-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
+
+/* SCROLL */
+.scroll-x{overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.scroll-x::-webkit-scrollbar{display:none}
+.scroll-y{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent}
+.scroll-y::-webkit-scrollbar{width:4px}
+.scroll-y::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.4px}
+.badge-teal{background:rgba(13,148,136,0.2);color:#5EEAD4;border:1px solid rgba(13,148,136,0.3)}
+.badge-amber{background:rgba(245,158,11,0.15);color:#FCD34D;border:1px solid rgba(245,158,11,0.25)}
+.badge-rose{background:rgba(244,63,94,0.15);color:#FDA4AF;border:1px solid rgba(244,63,94,0.25)}
+.badge-purple{background:rgba(139,92,246,0.15);color:#C4B5FD;border:1px solid rgba(139,92,246,0.25)}
+
+/* INPUT */
+.input-dark{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;padding:13px 16px;color:#E8F0EB;font-size:15px;font-family:'Inter',sans-serif;width:100%;outline:none;transition:border-color .2s}
+.input-dark:focus{border-color:#0D9488}
+.input-dark::placeholder{color:#4B5E4F}
+
+/* DIVIDER */
+.divider{height:1px;background:rgba(255,255,255,0.07);margin:20px 0}
+
+/* PULSE */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 1.5s infinite}
+
+/* FADE UP */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease both}
+
+/* PHOTO BG */
+.photo-bg{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:0}
+.photo-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,15,13,.5) 0%,rgba(10,15,13,.85) 100%);z-index:1}
+
+/* SECTION */
+.section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4B7A5A;margin-bottom:12px}
+
+/* PROGRESS */
+.progress-bar{height:3px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-bottom:24px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0D9488,#34D399);border-radius:999px;transition:width .4s ease}
+</style>
+</head>
+<body x-data="escaleApp()" x-init="init()">
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: WELCOME
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='welcome'}" style="position:relative;min-height:100vh;overflow:hidden">
+  <img src="https://picsum.photos/seed/travel-hero/800/900" class="photo-bg" alt="">
+  <div class="photo-overlay"></div>
+  <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;padding:48px 24px 36px">
+
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:auto">
+      <div style="width:38px;height:38px;background:linear-gradient(135deg,#0D9488,#34D399);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">✈</div>
+      <span class="font-syne" style="font-size:22px;font-weight:800;letter-spacing:-0.5px">Escale</span>
+    </div>
+
+    <!-- Hero Text -->
+    <div style="margin-bottom:32px" class="fade-up">
+      <div class="badge badge-teal" style="margin-bottom:16px">🌍 Votre compagnon de voyage tout-en-un</div>
+      <h1 class="font-syne" style="font-size:38px;font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:14px">
+        Voyagez<br>sans limites,<br><span style="color:#34D399">sans autres apps</span>
+      </h1>
+      <p style="color:#9AA89D;font-size:16px;line-height:1.6">Réservez vos transports, hébergements et activités — tout depuis Escale.</p>
+    </div>
+
+    <!-- Profile type selection -->
+    <div class="fade-up" style="animation-delay:.1s">
+      <p class="section-label">Je voyage en tant que</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+        <template x-for="pt in profileTypes" :key="pt.id">
+          <div class="profile-type-card glass" :class="{selected: profileType===pt.id}" @click="profileType=pt.id" :style="profileType===pt.id ? 'background:rgba(13,148,136,0.12)' : ''">
+            <div style="font-size:32px;margin-bottom:8px" x-text="pt.emoji"></div>
+            <div class="font-syne" style="font-size:12px;font-weight:700;color:#CBD5C0" x-text="pt.label"></div>
+          </div>
+        </template>
+      </div>
+      <button class="btn-primary" @click="startOnboarding()" :disabled="!profileType" :style="!profileType?'opacity:.4;cursor:not-allowed':''">
+        Commencer mon voyage →
+      </button>
+      <button class="btn-secondary" style="margin-top:10px" @click="loadSavedTrips()" x-show="hasSaved">
+        Reprendre mes voyages
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: GEOLOCATION
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='geolocate'}" style="padding:0">
+  <div style="padding:56px 24px 24px;flex:1;display:flex;flex-direction:column">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+      <button @click="screen='welcome'" style="background:rgba(255,255,255,0.08);border:none;color:#E8F0EB;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px">←</button>
+      <h2 class="font-syne" style="font-size:22px;font-weight:800">Votre point de départ</h2>
+    </div>
+
+    <!-- Geolocation -->
+    <div class="glass" style="padding:24px;margin-bottom:20px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px" x-text="geoStatus==='done' ? '✅' : geoStatus==='loading' ? '📡' : '📍'"></div>
+      <h3 class="font-syne" style="font-size:18px;font-weight:700;margin-bottom:8px" x-text="geoStatus==='done' ? detectedCity : geoStatus==='loading' ? 'Détection en cours...' : 'Détecter ma position'"></h3>
+      <p style="color:#6B7F6E;font-size:14px;margin-bottom:16px" x-text="geoStatus==='done' ? 'Position détectée avec succès' : 'Pour vous proposer des destinations proches'"></p>
+      <button class="btn-primary" @click="geolocate()" x-show="geoStatus!=='done'" :class="{pulse: geoStatus==='loading'}" style="max-width:260px;margin:0 auto">
+        <span x-text="geoStatus==='loading' ? 'Localisation...' : '📍 Détecter ma position'"></span>
+      </button>
+      <div x-show="geoStatus==='done'" class="badge badge-teal" style="display:inline-flex">✓ <span x-text="detectedCity"></span></div>
+    </div>
+
+    <!-- OR enter city manually -->
+    <div style="text-align:center;margin:4px 0 16px;color:#4B5E4F;font-size:13px">— ou saisissez votre ville —</div>
+    <input class="input-dark" placeholder="Ex: Lyon, Bordeaux, Nantes..." x-model="manualCity" @input="if(manualCity.length>1){geoStatus='done';detectedCity=manualCity}">
+
+    <!-- Radius selector -->
+    <div class="divider"></div>
+    <p class="section-label">Distance maximale souhaitée</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+      <template x-for="r in radiusOptions" :key="r.value">
+        <button class="radius-pill" :class="{active: radius===r.value}" @click="radius=r.value" x-text="r.label"></button>
+      </template>
+    </div>
+
+    <button class="btn-primary" @click="findNearbyDests()" :disabled="!detectedCity" :style="!detectedCity?'opacity:.4;cursor:not-allowed':''" style="margin-top:auto">
+      Voir les destinations →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: NEARBY DESTINATIONS
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='nearby'}" style="padding:0">
+  <div style="padding:56px 24px 120px;flex:1;overflow-y:auto">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <button @click="screen='geolocate'" style="background:rgba(255,255,255,0.08);border:none;color:#E8F0EB;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px">←</button>
+      <div>
+        <h2 class="font-syne" style="font-size:20px;font-weight:800">Destinations proches</h2>
+        <p style="color:#6B7F6E;font-size:13px">Depuis <span x-text="detectedCity"></span> · <span x-text="radius==='international' ? 'International' : radius+'km max'"></span></p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Profile badge -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+      <template x-for="pt in profileTypes" :key="pt.id">
+        <div x-show="profileType===pt.id" class="badge" :class="pt.id==='pro'?'badge-purple':pt.id==='famille'?'badge-amber':'badge-teal'">
+          <span x-text="pt.emoji"></span><span x-text="pt.label"></span>
+        </div>
+      </template>
+    </div>
+
+    <!-- Destination grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" x-show="nearbyDests.length">
+      <template x-for="dest in nearbyDests" :key="dest.key">
+        <div class="dest-card" @click="selectDest(dest)">
+          <img :src="'https://picsum.photos/seed/'+dest.key+'/400/280'" alt="">
+          <div class="overlay"></div>
+          <div class="info">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="dest.name"></div>
+            <div style="font-size:11px;color:#9AA89D;margin-top:2px" x-text="dest.distance"></div>
+            <div style="margin-top:4px">
+              <span class="badge badge-teal" style="font-size:10px" x-text="dest.tag"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div x-show="!nearbyDests.length" style="text-align:center;padding:60px 0;color:#4B5E4F">
+      <div style="font-size:48px;margin-bottom:12px">🗺️</div>
+      <p>Aucune destination trouvée.<br>Essayez un rayon plus grand.</p>
+    </div>
+
+    <!-- International option -->
+    <div class="glass-teal" style="padding:16px;margin-top:20px;border-radius:16px;display:flex;align-items:center;gap:12px" @click="radius='international';findNearbyDests()" x-show="radius!=='international'" style="cursor:pointer">
+      <span style="font-size:28px">✈️</span>
+      <div>
+        <div class="font-syne" style="font-size:14px;font-weight:700">Explorer le monde entier</div>
+        <div style="font-size:12px;color:#6B7F6E">Voir toutes les destinations internationales</div>
+      </div>
+      <span style="margin-left:auto;color:#5EEAD4">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: ONBOARDING (Chat)
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='onboarding'}" style="padding:0">
+  <div style="padding:56px 24px 24px;display:flex;flex-direction:column;height:100vh">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;background:linear-gradient(135deg,#0D9488,#34D399);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">✈</div>
+        <span class="font-syne" style="font-size:16px;font-weight:700">Escale</span>
+      </div>
+      <div class="badge" :class="profileType==='pro'?'badge-purple':profileType==='famille'?'badge-amber':'badge-teal'">
+        <template x-for="pt in profileTypes" :key="pt.id"><span x-show="profileType===pt.id" x-text="pt.emoji+' '+pt.label"></span></template>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar"><div class="progress-fill" :style="'width:'+Math.round((onbStep+1)/onbFlow.length*100)+'%'"></div></div>
+
+    <!-- Messages -->
+    <div class="scroll-y" style="flex:1;padding-bottom:20px" id="chatScroll">
+      <template x-for="(msg, idx) in chatMessages" :key="idx">
+        <div class="fade-up" :style="'animation-delay:'+idx*.05+'s'" style="margin-bottom:16px">
+          <!-- AI message -->
+          <div x-show="msg.role==='ai'" style="display:flex;gap:10px;align-items:flex-start">
+            <div style="width:30px;height:30px;background:linear-gradient(135deg,#0D9488,#34D399);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px">✈</div>
+            <div class="glass-sm" style="padding:12px 14px;max-width:85%;border-radius:4px 18px 18px 18px">
+              <p style="font-size:15px;line-height:1.5" x-html="msg.text"></p>
+            </div>
+          </div>
+          <!-- User message -->
+          <div x-show="msg.role==='user'" style="display:flex;justify-content:flex-end">
+            <div style="background:linear-gradient(135deg,#0D9488,#059669);padding:12px 16px;border-radius:18px 4px 18px 18px;max-width:80%">
+              <p style="font-size:14px" x-text="msg.text"></p>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Typing -->
+      <div x-show="aiTyping" style="display:flex;gap:10px;align-items:center">
+        <div style="width:30px;height:30px;background:linear-gradient(135deg,#0D9488,#34D399);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px">✈</div>
+        <div class="glass-sm" style="padding:12px 16px"><span class="pulse">●●●</span></div>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div x-show="!aiTyping && onbStep < onbFlow.length">
+      <!-- Chips -->
+      <div class="scroll-x" x-show="currentChips.length" style="margin-bottom:12px">
+        <div style="display:flex;gap:8px;width:max-content">
+          <template x-for="chip in currentChips" :key="chip">
+            <button class="chip" @click="sendChip(chip)" x-text="chip"></button>
+          </template>
+        </div>
+      </div>
+      <!-- Text input -->
+      <div style="display:flex;gap:10px" x-show="currentInputType==='text'">
+        <input class="input-dark" :placeholder="currentPlaceholder" x-model="userInput" @keydown.enter="sendText()" style="flex:1">
+        <button @click="sendText()" style="background:linear-gradient(135deg,#0D9488,#059669);border:none;border-radius:12px;width:46px;height:46px;cursor:pointer;font-size:20px;color:white;flex-shrink:0">↑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: TRANSPORT BOOKING
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='transport'}" style="padding:0">
+  <div style="padding:56px 24px 120px;flex:1;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button @click="goBack()" style="background:rgba(255,255,255,0.08);border:none;color:#E8F0EB;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px">←</button>
+      <div>
+        <h2 class="font-syne" style="font-size:20px;font-weight:800">Réserver votre transport</h2>
+        <p style="color:#6B7F6E;font-size:13px" x-text="detectedCity + ' → ' + (selectedDest ? selectedDest.name : '')"></p>
+      </div>
+    </div>
+
+    <div class="tab-bar" style="margin-bottom:20px">
+      <button class="tab-btn" :class="{active:transportTab==='vol'}" @click="transportTab='vol'">✈️ Vol</button>
+      <button class="tab-btn" :class="{active:transportTab==='train'}" @click="transportTab='train'">🚆 Train</button>
+      <button class="tab-btn" :class="{active:transportTab==='covoiturage'}" @click="transportTab='covoiturage'">🚗 Covoiturage</button>
+      <button class="tab-btn" :class="{active:transportTab==='bus'}" @click="transportTab='bus'">🚌 Bus</button>
+    </div>
+
+    <!-- VOL -->
+    <div x-show="transportTab==='vol'">
+      <div class="glass-teal" style="padding:14px 16px;border-radius:14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">💡</span>
+        <p style="font-size:13px;color:#9AA89D;line-height:1.4">Cliquez sur un lien — la recherche est pré-remplie avec votre destination.</p>
+      </div>
+      <template x-for="link in getTransportLinks('vol')" :key="link.name">
+        <a :href="link.url" target="_blank" class="book-card">
+          <div class="book-icon" :style="'background:'+link.bg">
+            <span x-text="link.emoji"></span>
+          </div>
+          <div style="flex:1">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="link.name"></div>
+            <div style="font-size:12px;color:#6B7F6E" x-text="link.desc"></div>
+          </div>
+          <span class="book-arrow">↗</span>
+        </a>
+      </template>
+    </div>
+
+    <!-- TRAIN -->
+    <div x-show="transportTab==='train'">
+      <template x-for="link in getTransportLinks('train')" :key="link.name">
+        <a :href="link.url" target="_blank" class="book-card">
+          <div class="book-icon" :style="'background:'+link.bg"><span x-text="link.emoji"></span></div>
+          <div style="flex:1">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="link.name"></div>
+            <div style="font-size:12px;color:#6B7F6E" x-text="link.desc"></div>
+          </div>
+          <span class="book-arrow">↗</span>
+        </a>
+      </template>
+    </div>
+
+    <!-- COVOITURAGE -->
+    <div x-show="transportTab==='covoiturage'">
+      <template x-for="link in getTransportLinks('covoiturage')" :key="link.name">
+        <a :href="link.url" target="_blank" class="book-card">
+          <div class="book-icon" :style="'background:'+link.bg"><span x-text="link.emoji"></span></div>
+          <div style="flex:1">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="link.name"></div>
+            <div style="font-size:12px;color:#6B7F6E" x-text="link.desc"></div>
+          </div>
+          <span class="book-arrow">↗</span>
+        </a>
+      </template>
+    </div>
+
+    <!-- BUS -->
+    <div x-show="transportTab==='bus'">
+      <template x-for="link in getTransportLinks('bus')" :key="link.name">
+        <a :href="link.url" target="_blank" class="book-card">
+          <div class="book-icon" :style="'background:'+link.bg"><span x-text="link.emoji"></span></div>
+          <div style="flex:1">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="link.name"></div>
+            <div style="font-size:12px;color:#6B7F6E" x-text="link.desc"></div>
+          </div>
+          <span class="book-arrow">↗</span>
+        </a>
+      </template>
+    </div>
+
+    <!-- Continue button -->
+    <div class="divider"></div>
+    <button class="btn-primary" @click="screen='accommodation'">
+      Voir les hébergements →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: ACCOMMODATION BOOKING
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='accommodation'}" style="padding:0">
+  <div style="padding:56px 24px 120px;flex:1;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button @click="screen='transport'" style="background:rgba(255,255,255,0.08);border:none;color:#E8F0EB;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px">←</button>
+      <div>
+        <h2 class="font-syne" style="font-size:20px;font-weight:800">Votre hébergement</h2>
+        <p style="color:#6B7F6E;font-size:13px" x-text="selectedDest ? selectedDest.name : ''"></p>
+      </div>
+    </div>
+
+    <div class="tab-bar" style="margin-bottom:20px">
+      <button class="tab-btn" :class="{active:accomTab==='hotel'}" @click="accomTab='hotel'">🏨 Hôtel</button>
+      <button class="tab-btn" :class="{active:accomTab==='airbnb'}" @click="accomTab='airbnb'">🏠 Airbnb</button>
+      <button class="tab-btn" :class="{active:accomTab==='maison'}" @click="accomTab='maison'">🏡 Maison d'hôtes</button>
+      <button class="tab-btn" :class="{active:accomTab==='camping'}" @click="accomTab='camping'">⛺ Camping</button>
+    </div>
+
+    <!-- Pro recommendation banner -->
+    <div x-show="profileType==='pro' && accomTab==='hotel'" class="glass-teal" style="padding:14px;border-radius:14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">💼</span>
+      <p style="font-size:13px;color:#9AA89D">Mode Professionnel — Hôtels avec Wi-Fi, salle de réunion et facturation entreprise.</p>
+    </div>
+    <div x-show="profileType==='famille' && (accomTab==='airbnb'||accomTab==='maison')" class="glass-teal" style="padding:14px;border-radius:14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">👨‍👩‍👧</span>
+      <p style="font-size:13px;color:#9AA89D">Mode Famille — Logements spacieux adaptés aux enfants.</p>
+    </div>
+
+    <template x-for="tab in ['hotel','airbnb','maison','camping']" :key="tab">
+      <div x-show="accomTab===tab">
+        <template x-for="link in getAccomLinks(tab)" :key="link.name">
+          <a :href="link.url" target="_blank" class="book-card">
+            <div class="book-icon" :style="'background:'+link.bg"><span x-text="link.emoji"></span></div>
+            <div style="flex:1">
+              <div class="font-syne" style="font-size:14px;font-weight:700" x-text="link.name"></div>
+              <div style="font-size:12px;color:#6B7F6E" x-text="link.desc"></div>
+              <div x-show="link.badge" class="badge badge-amber" style="margin-top:4px;font-size:10px" x-text="link.badge"></div>
+            </div>
+            <span class="book-arrow">↗</span>
+          </a>
+        </template>
+      </div>
+    </template>
+
+    <div class="divider"></div>
+    <button class="btn-primary" @click="screen='trip-detail'">
+      Voir le programme détaillé →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: GENERATING
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='generating'}" style="justify-content:center;align-items:center;padding:40px">
+  <div style="text-align:center">
+    <div class="shimmer" style="width:80px;height:80px;border-radius:24px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:40px;background:rgba(13,148,136,0.15)">✈️</div>
+    <h2 class="font-syne" style="font-size:22px;font-weight:800;margin-bottom:8px">Création de votre voyage</h2>
+    <p style="color:#6B7F6E;font-size:14px;margin-bottom:32px" x-text="generatingMsg"></p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <div class="pulse" style="width:8px;height:8px;border-radius:50%;background:#0D9488;animation-delay:0s"></div>
+      <div class="pulse" style="width:8px;height:8px;border-radius:50%;background:#0D9488;animation-delay:.2s"></div>
+      <div class="pulse" style="width:8px;height:8px;border-radius:50%;background:#0D9488;animation-delay:.4s"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: TRIP DETAIL
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='trip-detail'}" style="padding:0">
+
+  <!-- Hero Image -->
+  <div style="position:relative;height:240px;overflow:hidden;flex-shrink:0" x-show="currentTrip">
+    <img :src="currentTrip ? 'https://picsum.photos/seed/'+currentTrip.destKey+'/800/400' : ''" style="width:100%;height:100%;object-fit:cover" alt="">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,15,13,.3) 0%,rgba(10,15,13,1) 100%)"></div>
+    <button @click="screen='home'" style="position:absolute;top:52px;left:20px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#E8F0EB;width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:18px;z-index:2">←</button>
+    <div style="position:absolute;bottom:20px;left:20px;right:20px;z-index:2">
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="badge badge-teal" x-text="currentTrip ? currentTrip.days+'j' : ''"></span>
+        <span class="badge badge-amber" x-text="currentTrip ? currentTrip.budget : ''"></span>
+        <span class="badge" :class="profileType==='pro'?'badge-purple':profileType==='famille'?'badge-amber':'badge-teal'" x-text="profileType==='pro'?'💼 Pro':profileType==='famille'?'👨‍👩‍👧 Famille':'🏖️ Vacances'"></span>
+      </div>
+      <h1 class="font-syne" style="font-size:28px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.5)" x-text="currentTrip ? currentTrip.name : ''"></h1>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div style="padding:20px 20px 120px;overflow-y:auto;flex:1" class="scroll-y">
+
+    <!-- Quick booking bar -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <button class="btn-secondary" style="border-radius:14px;padding:12px;font-size:13px;font-weight:600" @click="screen='transport'">✈️ Transport</button>
+      <button class="btn-secondary" style="border-radius:14px;padding:12px;font-size:13px;font-weight:600" @click="screen='accommodation'">🏨 Hébergement</button>
+    </div>
+
+    <!-- Weather -->
+    <div class="glass-sm" style="padding:14px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between" x-show="currentTrip">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:28px" x-text="currentWeather.icon"></span>
+        <div>
+          <div class="font-syne" style="font-size:14px;font-weight:700" x-text="currentWeather.label"></div>
+          <div style="font-size:12px;color:#6B7F6E" x-text="'En ce moment · '+currentWeather.temp"></div>
+        </div>
+      </div>
+      <div class="badge badge-teal" x-text="currentWeather.temp"></div>
+    </div>
+
+    <!-- Itinerary steps -->
+    <p class="section-label">Programme jour par jour</p>
+    <template x-for="(step, idx) in (currentTrip ? currentTrip.steps : [])" :key="idx">
+      <div class="step-card">
+        <div class="step-header" @click="step._open = !step._open">
+          <div style="width:32px;height:32px;border-radius:10px;background:rgba(13,148,136,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" x-text="step.emoji"></div>
+          <div style="flex:1">
+            <div class="font-syne" style="font-size:14px;font-weight:700" x-text="step.title"></div>
+            <div style="font-size:12px;color:#6B7F6E" x-text="step.subtitle"></div>
+          </div>
+          <span style="color:#4B5E4F;transition:transform .2s" :style="step._open?'transform:rotate(180deg)':''">▼</span>
+        </div>
+        <div class="step-body" :class="{open: step._open}">
+          <p style="font-size:14px;color:#9AA89D;line-height:1.6;margin-bottom:12px" x-text="step.description"></p>
+          <!-- Booking links for step -->
+          <template x-for="link in step.links" :key="link.name">
+            <a :href="link.url" target="_blank" class="step-link">
+              <span x-text="link.emoji"></span>
+              <span style="flex:1" x-text="link.name"></span>
+              <span style="opacity:.5">↗</span>
+            </a>
+          </template>
+          <!-- Edit note -->
+          <div style="margin-top:12px" x-show="!step._editing">
+            <button @click="step._editing=true" style="font-size:12px;color:#4B5E4F;background:none;border:none;cursor:pointer">✏️ Modifier cette étape</button>
+          </div>
+          <div x-show="step._editing" style="margin-top:12px">
+            <textarea class="input-dark" x-model="step.userNote" placeholder="Vos notes personnelles..." style="resize:none;height:80px;font-size:13px"></textarea>
+            <button @click="step._editing=false;saveTrips()" class="btn-primary" style="margin-top:8px;padding:10px">Enregistrer</button>
+          </div>
+          <p x-show="step.userNote && !step._editing" style="font-size:12px;color:#5EEAD4;margin-top:8px;padding:8px 10px;background:rgba(13,148,136,0.1);border-radius:8px" x-text="'📝 '+step.userNote"></p>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="pill-nav">
+    <button class="pill-btn" :class="{active:screen==='home'}" @click="screen='home'"><span class="icon">🏠</span>Accueil</button>
+    <button class="pill-btn active"><span class="icon">🗺️</span>Voyage</button>
+    <button class="pill-btn" @click="screen='transport'"><span class="icon">✈️</span>Transport</button>
+    <button class="pill-btn" @click="screen='accommodation'"><span class="icon">🏨</span>Séjour</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN: HOME (My Trips)
+═══════════════════════════════════════════ -->
+<div class="screen" :class="{active: screen==='home'}" style="padding:0">
+  <div style="padding:56px 24px 120px;flex:1;overflow-y:auto">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h2 class="font-syne" style="font-size:24px;font-weight:800">Mes voyages</h2>
+        <p style="color:#6B7F6E;font-size:13px" x-text="savedTrips.length ? savedTrips.length+' voyage(s) sauvegardé(s)' : 'Commencez à planifier'"></p>
+      </div>
+      <button @click="screen='welcome'" style="background:linear-gradient(135deg,#0D9488,#059669);border:none;color:white;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:20px">+</button>
+    </div>
+
+    <!-- Saved trips -->
+    <template x-for="(trip, i) in savedTrips" :key="i">
+      <div class="glass" style="border-radius:20px;overflow:hidden;margin-bottom:16px;cursor:pointer" @click="openTrip(trip)">
+        <div style="position:relative;height:140px">
+          <img :src="'https://picsum.photos/seed/'+trip.destKey+'/600/300'" style="width:100%;height:100%;object-fit:cover" alt="">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.1) 60%)"></div>
+          <div style="position:absolute;bottom:12px;left:14px;right:14px">
+            <div class="font-syne" style="font-size:18px;font-weight:800" x-text="trip.name"></div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <span class="badge badge-teal" x-text="trip.days+'j'"></span>
+              <span class="badge badge-amber" x-text="trip.budget"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Empty state -->
+    <div x-show="!savedTrips.length" style="text-align:center;padding:40px 20px">
+      <div style="font-size:56px;margin-bottom:16px">🌍</div>
+      <h3 class="font-syne" style="font-size:18px;font-weight:700;margin-bottom:8px">Votre aventure commence ici</h3>
+      <p style="color:#6B7F6E;font-size:14px;margin-bottom:20px">Créez votre premier voyage personnalisé</p>
+      <button class="btn-primary" @click="screen='welcome'" style="max-width:220px;margin:0 auto">Planifier un voyage</button>
+    </div>
+
+    <!-- Discover section -->
+    <div class="divider"></div>
+    <p class="section-label">Destinations populaires</p>
+    <div class="scroll-x">
+      <div style="display:flex;gap:12px;width:max-content">
+        <template x-for="dest in featuredDests" :key="dest.key">
+          <div style="width:160px;height:200px;border-radius:18px;overflow:hidden;position:relative;cursor:pointer;flex-shrink:0" @click="quickPlan(dest)">
+            <img :src="'https://picsum.photos/seed/'+dest.key+'/300/350'" style="width:100%;height:100%;object-fit:cover" alt="">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,0) 60%)"></div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px">
+              <div class="font-syne" style="font-size:14px;font-weight:700" x-text="dest.name"></div>
+              <div style="font-size:11px;color:#9AA89D" x-text="dest.tag"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="pill-nav">
+    <button class="pill-btn active"><span class="icon">🏠</span>Accueil</button>
+    <button class="pill-btn" @click="screen='welcome'"><span class="icon">🗺️</span>Nouveau</button>
+    <button class="pill-btn" @click="screen='transport'"><span class="icon">✈️</span>Transport</button>
+    <button class="pill-btn" @click="screen='accommodation'"><span class="icon">🏨</span>Séjour</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+// ─── DATA ────────────────────────────────────
+const PROFILE_TYPES = [
+  {id:'vacances', emoji:'🏖️', label:'Vacances'},
+  {id:'famille',  emoji:'👨‍👩‍👧', label:'Famille'},
+  {id:'pro',      emoji:'💼', label:'Pro'},
+];
+
+const NEARBY = {
+  'paris':      {50:['versailles','fontainebleau','chartres'],     100:['reims','amiens','rouen'],       200:['lille','strasbourg','bruges'], international:['rome','barcelone','amsterdam','londres']},
+  'lyon':       {50:['annecy','vienne'],                           100:['grenoble','chambery'],          200:['geneve','dijon','clermont'],   international:['milan','rome','barcelone']},
+  'marseille':  {50:['aix','cassis','aubagne'],                    100:['toulon','arles','avignon'],     200:['nice','montpellier','nimes'],  international:['barcelone','rome','tunis']},
+  'bordeaux':   {50:['arcachon','saint_emilion'],                  100:['biarritz','pau'],               200:['toulouse','nantes','la_rochelle'], international:['madrid','lisbonne','porto']},
+  'nice':       {50:['monaco','cannes','antibes'],                 100:['toulon','cuneo'],               200:['marseille','genes'],          international:['rome','barcelone','milan']},
+  'toulouse':   {50:['albi','carcassonne'],                        100:['auch','foix'],                  200:['bordeaux','montpellier','pau'], international:['barcelone','andorre']},
+  'nantes':     {50:['saint_nazaire','angers'],                    100:['le_mans','laval'],              200:['rennes','la_rochelle','tours'], international:['dublin','edimbourg']},
+  'strasbourg': {50:['colmar','obernai'],                          100:['mulhouse','freiburg'],          200:['bale','nancy','metz'],         international:['amsterdam','bruges','francfort']},
+  'default':    {50:['paris','lyon','bordeaux'],                   100:['marseille','nice','toulouse'],  200:['barcelone','bruxelles','geneve'], international:['rome','tokyo','new_york','bali']},
+};
+
+const DEST_INFO = {
+  paris:         {name:'Paris',          tag:'Culture & Gastronomie', distance:'Île-de-France'},
+  versailles:    {name:'Versailles',     tag:'Histoire',              distance:'30 km'},
+  fontainebleau: {name:'Fontainebleau',  tag:'Nature & Château',      distance:'55 km'},
+  chartres:      {name:'Chartres',       tag:'Cathédrale gothique',   distance:'90 km'},
+  reims:         {name:'Reims',          tag:'Champagne & Histoire',  distance:'140 km'},
+  amiens:        {name:'Amiens',         tag:'Cathédrale & Estaminets',distance:'130 km'},
+  rouen:         {name:'Rouen',          tag:'Normandie',             distance:'135 km'},
+  lille:         {name:'Lille',          tag:'Art de vivre',          distance:'220 km'},
+  bruges:        {name:'Bruges',         tag:'Canaux & Chocolat',     distance:'290 km'},
+  annecy:        {name:'Annecy',         tag:'Lac & Montagne',        distance:'40 km'},
+  grenoble:      {name:'Grenoble',       tag:'Alpes',                 distance:'105 km'},
+  geneve:        {name:'Genève',         tag:'Lac Léman',             distance:'160 km'},
+  rome:          {name:'Rome',           tag:'Histoire & Art',        distance:'International'},
+  barcelone:     {name:'Barcelone',      tag:'Architecture & Plage',  distance:'International'},
+  amsterdam:     {name:'Amsterdam',      tag:'Canaux & Culture',      distance:'International'},
+  madrid:        {name:'Madrid',         tag:'Culture & Tapas',       distance:'International'},
+  lisbonne:      {name:'Lisbonne',       tag:'Fado & Azulejos',       distance:'International'},
+  tokyo:         {name:'Tokyo',          tag:'Innovation & Culture',  distance:'International'},
+  new_york:      {name:'New York',       tag:'Skyline & Broadway',    distance:'International'},
+  bali:          {name:'Bali',           tag:'Temples & Nature',      distance:'International'},
+  maroc:         {name:'Marrakech',      tag:'Souks & Médina',        distance:'International'},
+  arcachon:      {name:'Arcachon',       tag:'Dune du Pilat & Mer',   distance:'60 km'},
+  biarritz:      {name:'Biarritz',       tag:'Surf & Élégance',       distance:'185 km'},
+  nice:          {name:'Nice',           tag:'Promenade des Anglais',  distance:'Côte d\'Azur'},
+  monaco:        {name:'Monaco',         tag:'Grand Prix & Luxe',     distance:'20 km'},
+  cannes:        {name:'Cannes',         tag:'Festival & Plages',     distance:'33 km'},
+  montpellier:   {name:'Montpellier',    tag:'Douceur de vivre',      distance:'170 km'},
+  toulon:        {name:'Toulon',         tag:'Rade & Marine',         distance:'65 km'},
+  aix:           {name:'Aix-en-Provence',tag:'Cézanne & Marchés',    distance:'30 km'},
+  cassis:        {name:'Cassis',         tag:'Calanques',             distance:'22 km'},
+  avignon:       {name:'Avignon',        tag:'Papes & Festival',      distance:'95 km'},
+  nantes:        {name:'Nantes',         tag:'Machines de l\'île',    distance:'International'},
+  strasbourg:    {name:'Strasbourg',     tag:'Alsace & Europe',       distance:'International'},
+  colmar:        {name:'Colmar',         tag:'Alsace pittoresque',    distance:'70 km'},
+};
+
+const WEATHER_DATA = {
+  paris:      {spring:{icon:'🌸',temp:'15°C',label:'Doux et fleuri',bg:'rgba(236,72,153,0.1)',color:'#F9A8D4'},summer:{icon:'☀️',temp:'25°C',label:'Chaud et ensoleillé',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🍂',temp:'12°C',label:'Frais et coloré',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'❄️',temp:'4°C',label:'Froid et brumeux',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  rome:       {spring:{icon:'🌸',temp:'18°C',label:'Idéal pour visiter',bg:'rgba(236,72,153,0.1)',color:'#F9A8D4'},summer:{icon:'🌞',temp:'32°C',label:'Très chaud',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🍂',temp:'18°C',label:'Agréable',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'🌧️',temp:'8°C',label:'Doux et pluvieux',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  barcelone:  {spring:{icon:'🌤️',temp:'20°C',label:'Parfait',bg:'rgba(16,185,129,0.1)',color:'#6EE7B7'},summer:{icon:'🌞',temp:'30°C',label:'Chaud & animé',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🌦️',temp:'20°C',label:'Agréable',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'🌤️',temp:'12°C',label:'Doux',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  tokyo:      {spring:{icon:'🌸',temp:'16°C',label:'Cerisiers en fleur',bg:'rgba(236,72,153,0.1)',color:'#F9A8D4'},summer:{icon:'🌧️',temp:'30°C',label:'Chaud et humide',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🍁',temp:'18°C',label:'Couleurs magnifiques',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'❄️',temp:'5°C',label:'Froid et sec',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  bali:       {spring:{icon:'🌴',temp:'29°C',label:'Saison sèche',bg:'rgba(16,185,129,0.1)',color:'#6EE7B7'},summer:{icon:'🌦️',temp:'28°C',label:'Quelques pluies',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🌴',temp:'29°C',label:'Idéal',bg:'rgba(16,185,129,0.1)',color:'#6EE7B7'},winter:{icon:'🌧️',temp:'27°C',label:'Saison des pluies',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  new_york:   {spring:{icon:'🌷',temp:'14°C',label:'Agréable',bg:'rgba(236,72,153,0.1)',color:'#F9A8D4'},summer:{icon:'☀️',temp:'28°C',label:'Chaud et animé',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🍂',temp:'15°C',label:'Couleurs d\'automne',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'❄️',temp:'0°C',label:'Hivernal',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+  default:    {spring:{icon:'🌤️',temp:'18°C',label:'Agréable',bg:'rgba(16,185,129,0.1)',color:'#6EE7B7'},summer:{icon:'☀️',temp:'26°C',label:'Ensoleillé',bg:'rgba(245,158,11,0.1)',color:'#FCD34D'},autumn:{icon:'🍂',temp:'14°C',label:'Frais',bg:'rgba(239,68,68,0.1)',color:'#FCA5A5'},winter:{icon:'❄️',temp:'5°C',label:'Froid',bg:'rgba(99,102,241,0.1)',color:'#A5B4FC'}},
+};
+
+// ─── ONBOARDING FLOWS ──────────────────────────
+const ONB_VACANCES = [
+  {q:"Bonjour ! 🌍 Je suis Escale, votre compagnon de voyage. Pour vous créer un voyage parfait, j'ai quelques questions. <br><br><b>Vous voyagez avec qui ?</b>", chips:['🧍 Solo','💑 En couple','🎉 Entre amis'], inputType:'chips', placeholder:''},
+  {q:"Super choix ! 🎒 <b>Quelle ambiance vous fait rêver ?</b>", chips:['🏖️ Plage & soleil','🏛️ Culture & histoire','🌿 Nature & randonnée','🍷 Gastronomie','🎭 Fête & nightlife'], inputType:'chips', placeholder:''},
+  {q:"Parfait ! 📅 <b>Combien de jours avez-vous ?</b>", chips:['⚡ 2-3 jours','📅 4-7 jours','🗓️ 1-2 semaines','🌍 +2 semaines'], inputType:'chips', placeholder:''},
+  {q:"🌍 <b>Avez-vous déjà une destination en tête ?</b>", chips:['Non, proposez-moi','Oui, je vais vous dire'], inputType:'chips', placeholder:''},
+  {q:"💰 <b>Quel est votre budget approximatif par personne ?</b>", chips:['💚 Économique (<500€)','💛 Modéré (500-1000€)','💎 Confort (1000-2000€)','👑 Luxe (2000€+)'], inputType:'chips', placeholder:''},
+  {q:"✅ <b>Donnez-moi une destination</b> (ou validez pour que je vous en propose une selon vos préférences) :", chips:['🎲 Surprise !'], inputType:'text', placeholder:'Ex: Paris, Barcelone, Bali...'},
+];
+
+const ONB_FAMILLE = [
+  {q:"Bonjour ! 👨‍👩‍👧 Bienvenue dans le mode Famille ! <br><br><b>Vos enfants ont quel âge ?</b>", chips:['👶 0-3 ans','🧒 4-7 ans','🧑 8-12 ans','👦 Ados (13+)','🎭 Âges mixtes'], inputType:'chips', placeholder:''},
+  {q:"Super ! 🎡 <b>Qu'est-ce que votre famille apprécie le plus ?</b>", chips:['🎡 Parcs & Loisirs','🏖️ Plage & Mer','🏔️ Montagne & Nature','🏛️ Culture adaptée','🎠 Villes à explorer'], inputType:'chips', placeholder:''},
+  {q:"🏠 <b>Quel hébergement privilégiez-vous en famille ?</b>", chips:['🏡 Gîte / Maison','🏨 Hôtel familial','🏕️ Camping','🏠 Airbnb spacieux'], inputType:'chips', placeholder:''},
+  {q:"📅 <b>Durée du séjour familial ?</b>", chips:['🌟 Week-end (2-3j)','⭐ Semaine (7j)','🌟 Grandes vacances (2 sem+)'], inputType:'chips', placeholder:''},
+  {q:"💰 <b>Budget total pour la famille ?</b>", chips:['💚 Économique','💛 Moyen','💎 Confortable'], inputType:'chips', placeholder:''},
+  {q:"🗺️ <b>Destination souhaitée ?</b> Je l'adapte pour toute la famille !", chips:['🎲 Surprise famille !'], inputType:'text', placeholder:'Ex: Vendée, Bretagne, Barcelone...'},
+];
+
+const ONB_PRO = [
+  {q:"Bonjour ! 💼 Mode Professionnel activé. Voyages d'affaires efficaces et confortables. <br><br><b>Type de déplacement ?</b>", chips:['📊 Réunion / Conférence','🎪 Salon / Exposition','🤝 Rendez-vous client','🏢 Formation'], inputType:'chips', placeholder:''},
+  {q:"⏱️ <b>Durée du séjour professionnel ?</b>", chips:['📅 1 journée','🌙 1 nuit','🏙️ 2-3 nuits','📋 1 semaine+'], inputType:'chips', placeholder:''},
+  {q:"🏨 <b>Votre préférence d'hôtel ?</b>", chips:['🌟 Business Hotel (4★)','👑 Luxe (5★)','⚡ Express (3★ central)','🏢 Appartement d\'affaires'], inputType:'chips', placeholder:''},
+  {q:"🍽️ <b>Restauration professionnelle ?</b>", chips:['🤝 Restaurant d\'affaires','🥗 Rapide & efficace','🍴 Gastronomique','🏢 Restauration sur place'], inputType:'chips', placeholder:''},
+  {q:"🗺️ <b>Destination de votre déplacement ?</b>", chips:[], inputType:'text', placeholder:'Ex: Paris La Défense, Lyon Part-Dieu, Bruxelles...'},
+];
+
+// ─── ITINERARIES ──────────────────────────────
+function buildItinerary(destKey, profile, prefs) {
+  const ITIN = {
+    paris: {
+      name:'Paris', days:4, budget:'Budget moyen',
+      steps:[
+        {emoji:'🗼',title:'Tour Eiffel & Champ-de-Mars',subtitle:'Jour 1 matin',description:'Commencez tôt pour éviter la foule. Vue panoramique depuis le 2e étage. Pique-nique au Champ-de-Mars.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Réserver billets Tour Eiffel',url:'https://www.toureiffel.paris/fr/billets-offres',},{emoji:'🗺️',name:'Google Maps — Tour Eiffel',url:'https://maps.google.com/?q=Tour+Eiffel+Paris'}]},
+        {emoji:'🎨',title:'Musée du Louvre',subtitle:'Jour 1 après-midi',description:'Le plus grand musée du monde. Prévoyez 3-4h minimum. Téléchargez l\'application officielle pour le plan.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Louvre en ligne',url:'https://www.louvre.fr/visites/horaires-acces-tarifs'},{emoji:'📍',name:'Plan du musée',url:'https://www.louvre.fr/visiter/plan-du-louvre'}]},
+        {emoji:'🛍️',title:'Marais & Place des Vosges',subtitle:'Jour 2',description:'Quartier historique plein de galeries d\'art, boutiques vintage et restaurants branchés. La plus belle place de Paris.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🍽️',name:'Restaurants du Marais',url:'https://www.tripadvisor.fr/Restaurants-g187147-c8-Paris_Ile_de_France.html'},{emoji:'🛍️',name:'Boutiques du Marais',url:'https://maps.google.com/?q=Le+Marais+Paris'}]},
+        {emoji:'🚢',title:'Croisière sur la Seine',subtitle:'Jour 3',description:'Bateau-Mouche ou Vedettes du Pont-Neuf. Vue magnifique sur Notre-Dame, le Louvre et les quais.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Bateaux-Mouches',url:'https://www.bateaux-mouches.fr/'},{emoji:'🎟️',name:'Vedettes de Paris',url:'https://www.vedettesdeparis.fr/'}]},
+        {emoji:'🍰',title:'Montmartre & Sacré-Cœur',subtitle:'Jour 4',description:'Village bohème aux ruelles pittoresques. Artistes sur la place du Tertre, vue sur tout Paris depuis la basilique.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Sacré-Cœur',url:'https://maps.google.com/?q=Sacré+Cœur+Montmartre'},{emoji:'🎨',name:'Espace Dalí Montmartre',url:'https://daliparis.com/'}]},
+      ]
+    },
+    rome: {
+      name:'Rome', days:4, budget:'Budget moyen',
+      steps:[
+        {emoji:'🏛️',title:'Colisée & Forum Romain',subtitle:'Jour 1',description:'Symboles de la Rome antique. Réservez impérativement à l\'avance pour éviter 2h de queue.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Colisée',url:'https://www.coopculture.it/en/colosseo-e-shop/'},{emoji:'🎟️',name:'Viator — Colisée visite guidée',url:'https://www.viator.com/Rome-attractions/Colosseum/d511-a5272'}]},
+        {emoji:'⛪',title:'Cité du Vatican & Chapelle Sixtine',subtitle:'Jour 2',description:'Michelange, la Pietà, Saint-Pierre. Un incontournable. Réservation obligatoire.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Musées du Vatican',url:'https://www.museivaticani.va/content/museivaticani/fr/acquista-biglietti.html'},{emoji:'🎟️',name:'Viator — Vatican',url:'https://www.viator.com/Vatican-City/d4180-ttd'}]},
+        {emoji:'⛲',title:'Fontaine de Trevi & Panthéon',subtitle:'Jour 3',description:'Jetez une pièce pour revenir à Rome. Le Panthéon, chef-d\'œuvre de l\'Antiquité.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Google Maps — Trevi',url:'https://maps.google.com/?q=Fontana+di+Trevi+Roma'},{emoji:'🎟️',name:'Panthéon — Billets',url:'https://www.pantheonroma.com/'}]},
+        {emoji:'🍕',title:'Gastronomie romaine',subtitle:'Jour 4',description:'Cacio e pepe, supplì, gelato artisanal. Explorez le Trastevere pour les meilleures trattorias.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🍽️',name:'Trastevere Restaurants',url:'https://www.tripadvisor.fr/Restaurants-g187791-c8-Rome_Lazio.html'},{emoji:'🛒',name:'Marché Campo de\'Fiori',url:'https://maps.google.com/?q=Campo+de+Fiori+Rome'}]},
+      ]
+    },
+    barcelone: {
+      name:'Barcelone', days:4, budget:'Budget moyen',
+      steps:[
+        {emoji:'🏗️',title:'La Sagrada Família',subtitle:'Jour 1',description:'Chef-d\'œuvre de Gaudí en construction depuis 1882. Réservez vos billets plusieurs semaines à l\'avance !',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Sagrada Família',url:'https://sagradafamilia.org/billets'},{emoji:'🎟️',name:'Viator — Sagrada Família',url:'https://www.viator.com/Barcelona-attractions/Sagrada-Familia/d562-a5350'}]},
+        {emoji:'🌳',title:'Park Güell & Gràcia',subtitle:'Jour 2',description:'Parc fantastique de Gaudí avec vue panoramique sur la ville. Réservation à l\'avance obligatoire.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Park Güell',url:'https://parkguell.barcelona/billets'},{emoji:'📍',name:'Quartier de Gràcia',url:'https://maps.google.com/?q=Gràcia+Barcelona'}]},
+        {emoji:'🏖️',title:'Barceloneta & Mer',subtitle:'Jour 3',description:'La célèbre plage de Barcelone. Port olympique, promenade, fruits de mer frais.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🍽️',name:'Restaurants Barceloneta',url:'https://www.tripadvisor.fr/Restaurants-g187497-c8-Barcelona_Catalonia.html'},{emoji:'📍',name:'La Barceloneta',url:'https://maps.google.com/?q=La+Barceloneta+Barcelona'}]},
+        {emoji:'🛍️',title:'Las Ramblas & Boqueria',subtitle:'Jour 4',description:'La promenade emblématique de Barcelone. Le Marché de la Boqueria : un festival de couleurs et saveurs.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🛒️',name:'Marché de la Boqueria',url:'https://www.boqueria.barcelona/'},{emoji:'📍',name:'Las Ramblas',url:'https://maps.google.com/?q=Las+Ramblas+Barcelona'}]},
+      ]
+    },
+    tokyo: {
+      name:'Tokyo', days:6, budget:'Budget confort',
+      steps:[
+        {emoji:'⛩️',title:'Asakusa & Senso-ji',subtitle:'Jour 1',description:'Le temple le plus visité du Japon. Marché Nakamise, rickshaws, atmosphère hors du temps.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Temple Senso-ji',url:'https://maps.google.com/?q=Senso-ji+Tokyo'},{emoji:'🎒',name:'Viator — Asakusa',url:'https://www.viator.com/Tokyo-attractions/Senso-ji-Temple/d334-a4349'}]},
+        {emoji:'🌸',title:'Shinjuku & Harajuku',subtitle:'Jour 2',description:'Quartier ultra-moderne, mode, sous-culture japonaise. Parc Yoyogi pour les cerisiers en saison.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Harajuku',url:'https://maps.google.com/?q=Harajuku+Tokyo'},{emoji:'🛍️',name:'Takeshita Street',url:'https://maps.google.com/?q=Takeshita+Street+Harajuku'}]},
+        {emoji:'🏙️',title:'Shibuya & Roppongi',subtitle:'Jour 3',description:'Le célèbre carrefour Scramble, les boutiques Shibuya 109, et Roppongi pour l\'art contemporain.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Carrefour Shibuya',url:'https://maps.google.com/?q=Shibuya+Crossing+Tokyo'},{emoji:'🎨',name:'Mori Art Museum',url:'https://www.mori.art.museum/'}]},
+        {emoji:'🗼',title:'Tour de Tokyo & Odaiba',subtitle:'Jour 4',description:'Vue à 333m sur la mégapole. Odaiba, l\'île artificielle futuriste dans la baie de Tokyo.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Tour de Tokyo',url:'https://www.tokyotower.co.jp/fr/'},{emoji:'📍',name:'Odaiba',url:'https://maps.google.com/?q=Odaiba+Tokyo'}]},
+      ]
+    },
+    bali: {
+      name:'Bali', days:7, budget:'Budget économique',
+      steps:[
+        {emoji:'🌺',title:'Ubud & Rizières de Tegalalang',subtitle:'Jour 1-2',description:'Cœur culturel de Bali. Rizières en terrasses classées UNESCO, artisanat balinais.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Viator — Ubud tours',url:'https://www.viator.com/Bali/d336-ttd'},{emoji:'📍',name:'Tegalalang',url:'https://maps.google.com/?q=Tegalalang+Rice+Terrace+Bali'}]},
+        {emoji:'⛩️',title:'Temple Tanah Lot & Uluwatu',subtitle:'Jour 3',description:'Temples sur la mer au coucher du soleil. Danses Kecak à Uluwatu — un spectacle inoubliable.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Tanah Lot',url:'https://maps.google.com/?q=Tanah+Lot+Bali'},{emoji:'🎭',name:'Kecak à Uluwatu',url:'https://www.viator.com/Uluwatu/d5525-ttd'}]},
+        {emoji:'🏄',title:'Kuta & Seminyak',subtitle:'Jour 4-5',description:'Plages de surf mondiales, couchers de soleil mythiques, restaurants de plage branchés.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🏄',name:'Cours de surf Kuta',url:'https://www.viator.com/Kuta/d5523-ttd'},{emoji:'🍽️',name:'Restaurants Seminyak',url:'https://www.tripadvisor.fr/Restaurants-g469404-Seminyak_Kuta_Bali.html'}]},
+      ]
+    },
+    new_york: {
+      name:'New York', days:6, budget:'Budget confort',
+      steps:[
+        {emoji:'🗽',title:'Statue de la Liberté & Ellis Island',subtitle:'Jour 1',description:'Symbole de l\'Amérique. Prenez le ferry tôt pour éviter la foule.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets officiels Statue Liberté',url:'https://www.statueofliberty.org/'},{emoji:'🎒',name:'Viator — Statue of Liberty',url:'https://www.viator.com/New-York-attractions/Statue-of-Liberty/d687-a5275'}]},
+        {emoji:'🌳',title:'Central Park & Upper West Side',subtitle:'Jour 2',description:'843 acres de nature en plein Manhattan. Vélo, pédalo, concerts gratuits en été.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🚲',name:'Location vélos Central Park',url:'https://www.citibikenyc.com/'},{emoji:'📍',name:'Central Park',url:'https://maps.google.com/?q=Central+Park+New+York'}]},
+        {emoji:'🎭',title:'Broadway & Times Square',subtitle:'Jour 3',description:'Spectacles légendaires, néons époustouflants. Réservez un show Broadway à l\'avance.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Broadway',url:'https://www.broadway.com/'},{emoji:'🎟️',name:'TKTS — billets réduits',url:'https://www.tdf.org/nyc/7/TKTS-ticket-booths'}]},
+        {emoji:'🏙️',title:'Empire State Building & High Line',subtitle:'Jour 4',description:'Panorama à 443m, puis promenade sur le parc aérien de la High Line avec vue sur Hudson.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Empire State Building',url:'https://www.esbnyc.com/'},{emoji:'📍',name:'The High Line',url:'https://www.thehighline.org/'}]},
+      ]
+    },
+    amsterdam: {
+      name:'Amsterdam', days:4, budget:'Budget moyen',
+      steps:[
+        {emoji:'🚲',title:'Canaux & Jordaan à vélo',subtitle:'Jour 1',description:'La façon la plus authentique de découvrir Amsterdam. 800km de canaux, architecture du XVIIe.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🚲',name:'Location vélos Amsterdam',url:'https://www.macbike.nl/fr/'},{emoji:'🚢',name:'Croisière canaux',url:'https://www.lovers.nl/fr/'}]},
+        {emoji:'🎨',title:'Rijksmuseum & Van Gogh Museum',subtitle:'Jour 2',description:'Les chefs-d\'œuvre de Rembrandt et la vie tourmentée de Van Gogh. Réservation indispensable.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Rijksmuseum',url:'https://www.rijksmuseum.nl/fr'},{emoji:'🎟️',name:'Van Gogh Museum',url:'https://www.vangoghmuseum.nl/fr'}]},
+        {emoji:'📖',title:'Maison d\'Anne Frank',subtitle:'Jour 3',description:'Monument historique incontournable. Réservez très longtemps à l\'avance — souvent complet.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Billets Anne Frank Huis',url:'https://www.annefrank.org/fr/musee/billets/'},{emoji:'📍',name:'Anne Frank Huis',url:'https://maps.google.com/?q=Anne+Frank+House+Amsterdam'}]},
+        {emoji:'🌷',title:'Keukenhof & Marchés de fleurs',subtitle:'Jour 4',description:'En saison (mars-mai) : le jardin de fleurs le plus célèbre au monde. Le marché aux fleurs Bloemenmarkt.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Keukenhof — Billets',url:'https://keukenhof.nl/fr/'},{emoji:'📍',name:'Bloemenmarkt',url:'https://maps.google.com/?q=Bloemenmarkt+Amsterdam'}]},
+      ]
+    },
+    maroc: {
+      name:'Marrakech', days:4, budget:'Budget économique',
+      steps:[
+        {emoji:'🕌',title:'Place Jemaa el-Fna & Médina',subtitle:'Jour 1',description:'Le cœur battant de Marrakech. Dresseurs de serpents, conteurs, musiciens le soir.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Jemaa el-Fna',url:'https://maps.google.com/?q=Jemaa+el-Fna+Marrakech'},{emoji:'🎒',name:'Visite guidée médina',url:'https://www.viator.com/Marrakech/d5562-ttd'}]},
+        {emoji:'🛍️',title:'Souks & Artisanat',subtitle:'Jour 2',description:'Labyrinthe de ruelles colorées : épices, babouches, tapis, cuivre. Négociez avec le sourire !',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Souks de Marrakech',url:'https://maps.google.com/?q=Souks+Marrakech'},{emoji:'🤝',name:'Artisanat certifié',url:'https://www.tripadvisor.fr/Attractions-g293734-Activities-c26-Marrakech_Marrakech_Safi.html'}]},
+        {emoji:'🌿',title:'Jardins Majorelle & Musée Yves Saint-Laurent',subtitle:'Jour 3',description:'Oasis de verdure créée par Majorelle, rachetée par YSL. Cobalt marocain magnifique.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Jardin Majorelle',url:'https://www.jardinmajorelle.com/'},{emoji:'🎟️',name:'Musée Yves Saint-Laurent',url:'https://www.museeyslmarrakech.com/'}]},
+        {emoji:'🐪',title:'Excursion désert Agafay',subtitle:'Jour 4',description:'À 40km de Marrakech, un désert rocheux avec vue sur l\'Atlas. Balade à dromadaire au coucher du soleil.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎒',name:'Excursion désert Agafay',url:'https://www.viator.com/Marrakech-attractions/Agafay-Desert/d5562-a32073'},{emoji:'🎒',name:'Bivouac dans l\'Atlas',url:'https://www.viator.com/Marrakech/d5562-ttd'}]},
+      ]
+    },
+    lisbonne: {
+      name:'Lisbonne', days:4, budget:'Budget économique',
+      steps:[
+        {emoji:'🚋',title:'Tram 28 & Alfama',subtitle:'Jour 1',description:'L\'iconique tram jaune traverse les quartiers historiques. Alfama, le berceau du fado, ruelles labyrinthiques.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Lisboa Card (transports+musées)',url:'https://www.lisboacard.org/'},{emoji:'🎵',name:'Casa de Fado',url:'https://www.casadofado.com/'}]},
+        {emoji:'🏰',title:'Belém & Monastère des Hiéronymites',subtitle:'Jour 2',description:'Patrimoine UNESCO, Tour de Belém sur le Tage. Goûtez les pastéis de Belém dans la fabrique originale !',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Monastère des Hiéronymites',url:'https://www.mosteirojeronimos.gov.pt/'},{emoji:'🍰',name:'Pastéis de Belém (boutique)',url:'https://pasteisdebelem.pt/'}]},
+        {emoji:'🌅',title:'Miradouros & Coucher de soleil',subtitle:'Jour 3',description:'Points de vue sur la ville aux 7 collines. Miradouro da Graça, São Pedro de Alcântara.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Miradouro da Graça',url:'https://maps.google.com/?q=Miradouro+da+Graça+Lisboa'},{emoji:'🍽️',name:'Restaurants Time Out Market',url:'https://www.timeoutmarket.com/lisboa/'}]},
+        {emoji:'🏄',title:'Sintra & Cascais (excursion)',subtitle:'Jour 4',description:'Palais de conte de fées à Sintra, village de pêcheurs chic à Cascais. 30 min en train.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🎟️',name:'Palais de Sintra',url:'https://www.parquesdesintra.pt/'},{emoji:'🚆',name:'Train Lisbonne-Sintra',url:'https://www.cp.pt/passageiros/fr'}]},
+      ]
+    },
+    default: {
+      name:'Votre destination', days:3, budget:'Budget moyen',
+      steps:[
+        {emoji:'🌍',title:'Découverte du centre-ville',subtitle:'Jour 1',description:'Explorez le cœur historique, les marchés locaux et l\'architecture de la ville.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'📍',name:'Voir sur Google Maps',url:'https://maps.google.com/'},{emoji:'🎒',name:'Activités sur Viator',url:'https://www.viator.com/'}]},
+        {emoji:'🍽️',title:'Gastronomie locale',subtitle:'Jour 2',description:'Restaurants locaux recommandés, marché du matin, spécialités régionales.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🍽️',name:'TripAdvisor Restaurants',url:'https://www.tripadvisor.fr/'},{emoji:'🌮',name:'TheFork — Réservation',url:'https://www.thefork.fr/'}]},
+        {emoji:'🌄',title:'Excursion & Nature',subtitle:'Jour 3',description:'Randonnée, visite d\'un site naturel ou excursion dans les environs.',_open:false,_editing:false,userNote:'',
+          links:[{emoji:'🥾',name:'Randonnées Komoot',url:'https://www.komoot.com/'},{emoji:'🎒',name:'Excursions Viator',url:'https://www.viator.com/'}]},
+      ]
+    },
+  };
+  const key = destKey || 'default';
+  const base = ITIN[key] || ITIN.default;
+  // Adapt for profile
+  if (profile === 'famille') {
+    base.steps = base.steps.map(s => ({...s,
+      links:[...s.links,{emoji:'👨‍👩‍👧',name:'Activités enfants — TripAdvisor',url:'https://www.tripadvisor.fr/Attractions-c61'}]
+    }));
+  } else if (profile === 'pro') {
+    base.days = Math.min(base.days, 2);
+    base.steps = base.steps.slice(0,2).map(s => ({...s,
+      links:[...s.links,{emoji:'💼',name:'Hôtels business — Hotels.com',url:'https://fr.hotels.com/'}]
+    }));
+  }
+  return JSON.parse(JSON.stringify(base));
+}
+
+// ─── TRANSPORT LINKS ──────────────────────────
+function buildTransportLinks(destName) {
+  const q = encodeURIComponent(destName || '');
+  const from = encodeURIComponent('Paris');
+  return {
+    vol:[
+      {name:'Google Flights',  desc:'Comparateur de vols — le meilleur prix',  emoji:'🔍', bg:'rgba(66,133,244,0.15)', url:`https://www.google.com/flights?hl=fr#flt=/m/05qtj.${q}.;c:EUR;e:1;sd:1;t:f`},
+      {name:'Air France',      desc:'Vols directs et correspondances',          emoji:'✈️', bg:'rgba(0,42,115,0.2)',    url:`https://www.airfrance.fr/search/offers?pax=1:0:0:0:0:0:0:0&cabinClass=ECO&tripType=1&segments=0::${from}:${q}`},
+      {name:'easyJet',         desc:'Vols low-cost vers toute l\'Europe',       emoji:'🟠', bg:'rgba(255,102,0,0.15)', url:`https://www.easyjet.com/fr/`},
+      {name:'Transavia',       desc:'Liaisons directes depuis la France',       emoji:'🟢', bg:'rgba(0,182,141,0.15)', url:`https://www.transavia.com/fr-FR/rechercher-des-vols/`},
+      {name:'Skyscanner',      desc:'Comparateur — toutes compagnies',          emoji:'💙', bg:'rgba(0,98,200,0.15)',  url:`https://www.skyscanner.fr/transport/vols/${from}/${q}/`},
+    ],
+    train:[
+      {name:'SNCF Connect',    desc:'TGV, Intercités, internationaux',          emoji:'🚅', bg:'rgba(196,30,58,0.15)',  url:`https://www.sncf-connect.com/app/home/search`},
+      {name:'Ouigo',           desc:'TGV low-cost — tarifs dès 10€',            emoji:'🟣', bg:'rgba(140,0,200,0.15)',  url:`https://www.ouigo.com/`},
+      {name:'Eurostar',        desc:'Paris-Londres, Paris-Bruxelles...',        emoji:'🌟', bg:'rgba(255,198,0,0.15)',  url:`https://www.eurostar.com/fr-fr`},
+      {name:'Trenitalia',      desc:'Trains italiens — Rome, Milan...',         emoji:'🇮🇹', bg:'rgba(0,146,70,0.15)',  url:`https://www.trenitalia.com/`},
+      {name:'Renfe',           desc:'Trains espagnols — Barcelone, Madrid',     emoji:'🇪🇸', bg:'rgba(220,20,60,0.15)', url:`https://www.renfe.com/`},
+    ],
+    covoiturage:[
+      {name:'BlaBlaCar',       desc:'Covoiturage longue distance',              emoji:'🚗', bg:'rgba(0,149,255,0.15)',  url:`https://www.blablacar.fr/search?source=PAR&destination=${q}&seats=1`},
+      {name:'Klaxit',          desc:'Covoiturage domicile-travail',             emoji:'🔵', bg:'rgba(0,80,200,0.15)',   url:`https://www.klaxit.com/`},
+      {name:'Mobicoop',        desc:'Covoiturage solidaire et écologique',      emoji:'🌿', bg:'rgba(50,180,50,0.15)',  url:`https://www.mobicoop.fr/`},
+    ],
+    bus:[
+      {name:'FlixBus',         desc:'Bus Europe — tarifs dès 5€',               emoji:'🟩', bg:'rgba(115,191,0,0.15)', url:`https://www.flixbus.fr/`},
+      {name:'BlaBlaBus',       desc:'Bus longue distance BlaBlaCar',            emoji:'🚌', bg:'rgba(0,149,255,0.15)', url:`https://www.blablacar.fr/bus`},
+      {name:'Ouibus / SNCF',   desc:'Cars SNCF nationaux',                      emoji:'🔴', bg:'rgba(196,30,58,0.15)', url:`https://www.ouibus.com/`},
+      {name:'Eurolines',       desc:'Bus internationaux en Europe',             emoji:'🌍', bg:'rgba(0,80,150,0.15)',  url:`https://www.eurolines.fr/`},
+    ],
+  };
+}
+
+function buildAccomLinks(destName, profile) {
+  const q = encodeURIComponent(destName || '');
+  const proSuffix = profile === 'pro' ? '&stars=4,5' : '';
+  return {
+    hotel:[
+      {name:'Booking.com',     desc:'Des milliers d\'hôtels — prix garanti',   emoji:'💙', bg:'rgba(0,100,210,0.15)',  url:`https://www.booking.com/searchresults.fr.html?ss=${q}${proSuffix}`,badge: profile==='pro'?'💼 Facturation entreprise':null},
+      {name:'Hotels.com',      desc:'Nuits offertes après 10 séjours',         emoji:'🔴', bg:'rgba(220,0,0,0.15)',    url:`https://fr.hotels.com/search.do?destination-id=${q}`},
+      {name:'Novotel',         desc:'Hôtels business & famille Accor',         emoji:'🟡', bg:'rgba(200,150,0,0.15)',  url:`https://all.accor.com/brand/novotel.fr.shtml`,badge: profile==='pro'?'💼 Préféré pro':null},
+      {name:'Ibis',            desc:'Confort & budget — partout en France',     emoji:'🟠', bg:'rgba(255,100,0,0.15)', url:`https://all.accor.com/brand/ibis.fr.shtml`},
+      {name:'HRS',             desc:'Hôtels professionnels avec facture',      emoji:'💼', bg:'rgba(80,80,80,0.15)',   url:`https://www.hrs.com/`,badge: profile==='pro'?'💼 Idéal pro':null},
+    ],
+    airbnb:[
+      {name:'Airbnb',          desc:'Logements chez l\'habitant & studios',    emoji:'🏠', bg:'rgba(255,90,95,0.15)',  url:`https://www.airbnb.fr/s/${q}/homes`,badge: profile==='famille'?'👨‍👩‍👧 Appartements familiaux':null},
+      {name:'Abritel',         desc:'Vacances en location chez des particuliers',emoji:'🌴',bg:'rgba(0,180,120,0.15)', url:`https://www.abritel.fr/location-vacances/${q}`,badge: profile==='famille'?'👨‍👩‍👧 Idéal famille':null},
+    ],
+    maison:[
+      {name:'Gîtes de France', desc:'Gîtes labellisés partout en France',      emoji:'🏡', bg:'rgba(0,140,80,0.15)',   url:`https://www.gites-de-france.com/fr/recherche?destination=${q}`,badge: profile==='famille'?'👨‍👩‍👧 Parfait famille':null},
+      {name:'Clévacances',     desc:'Locations de vacances certifiées',        emoji:'🔑', bg:'rgba(100,0,200,0.15)',  url:`https://www.clevacances.com/`},
+      {name:'Chambres d\'hôtes France',desc:'Séjours chez l\'habitant',        emoji:'☕', bg:'rgba(180,120,0,0.15)',  url:`https://www.chambresdhotes.org/`},
+    ],
+    camping:[
+      {name:'Camping.com',     desc:'Camping nature et éco-tourisme',          emoji:'⛺', bg:'rgba(50,150,0,0.15)',   url:`https://www.camping.com/?destination=${q}`},
+      {name:'Huttopia',        desc:'Cabanes et tentes lodge en nature',        emoji:'🌲', bg:'rgba(30,100,30,0.15)',  url:`https://www.huttopia.com/`},
+      {name:'Campings.com',    desc:'Comparateur campings 4 et 5 étoiles',     emoji:'⭐', bg:'rgba(255,200,0,0.15)',  url:`https://www.campings.com/fr/camping/france/?destination=${q}`},
+      {name:'Yelloh Village',  desc:'Camping premium avec animations',         emoji:'🌟', bg:'rgba(255,180,0,0.15)',  url:`https://www.yellohvillage.fr/`},
+    ],
+  };
+}
+
+// ─── FEATURED DESTINATIONS ────────────────────
+const FEATURED = [
+  {key:'paris',     name:'Paris',      tag:'Culture'},
+  {key:'barcelone', name:'Barcelone',  tag:'Plage & Art'},
+  {key:'rome',      name:'Rome',       tag:'Antique'},
+  {key:'tokyo',     name:'Tokyo',      tag:'Innovation'},
+  {key:'bali',      name:'Bali',       tag:'Nature'},
+  {key:'new_york',  name:'New York',   tag:'Urban'},
+  {key:'amsterdam', name:'Amsterdam',  tag:'Canaux'},
+  {key:'lisbonne',  name:'Lisbonne',   tag:'Fado'},
+];
+
+// ─── ALPINE APP ────────────────────────────────
+function escaleApp() {
+  return {
+    // State
+    screen: 'welcome',
+    profileType: null,
+    profileTypes: PROFILE_TYPES,
+    hasSaved: false,
+
+    // Geo
+    geoStatus: 'idle',
+    detectedCity: '',
+    manualCity: '',
+    radius: 100,
+    radiusOptions: [{value:50,label:'50 km'},{value:100,label:'100 km'},{value:200,label:'200 km'},{value:'international',label:'🌍 International'}],
+    nearbyDests: [],
+
+    // Onboarding
+    onbStep: 0,
+    onbFlow: [],
+    chatMessages: [],
+    aiTyping: false,
+    userInput: '',
+    currentChips: [],
+    currentInputType: 'chips',
+    currentPlaceholder: '',
+    onbAnswers: [],
+
+    // Transport / Accom
+    transportTab: 'vol',
+    accomTab: 'hotel',
+    transportLinks: {},
+    accomLinks: {},
+    selectedDest: null,
+
+    // Trip
+    currentTrip: null,
+    currentWeather: {icon:'🌤️',temp:'20°C',label:'Agréable'},
+    savedTrips: [],
+    generatingMsg: 'Analyse de vos préférences...',
+    featuredDests: FEATURED,
+
+    // ── INIT ──
+    init() {
+      const saved = localStorage.getItem('escale_v3');
+      if (saved) {
+        const data = JSON.parse(saved);
+        this.savedTrips = data.trips || [];
+        this.hasSaved = this.savedTrips.length > 0;
+        if (data.profileType) this.profileType = data.profileType;
+      }
+    },
+
+    // ── GEOLOCATION ──
+    geolocate() {
+      this.geoStatus = 'loading';
+      if (!navigator.geolocation) {
+        this.geoStatus = 'idle';
+        this.detectedCity = 'Paris';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const {latitude: lat, longitude: lon} = pos.coords;
+          this.detectedCity = this.detectCity(lat, lon);
+          this.geoStatus = 'done';
+        },
+        () => {
+          this.geoStatus = 'idle';
+          this.detectedCity = 'Paris';
+        }
+      );
+    },
+
+    detectCity(lat, lon) {
+      const cities = [
+        {name:'Paris',      lat:48.86, lon:2.35,   key:'paris'},
+        {name:'Lyon',       lat:45.75, lon:4.85,   key:'lyon'},
+        {name:'Marseille',  lat:43.30, lon:5.37,   key:'marseille'},
+        {name:'Bordeaux',   lat:44.84, lon:-0.58,  key:'bordeaux'},
+        {name:'Nice',       lat:43.71, lon:7.26,   key:'nice'},
+        {name:'Toulouse',   lat:43.60, lon:1.44,   key:'toulouse'},
+        {name:'Nantes',     lat:47.22, lon:-1.55,  key:'nantes'},
+        {name:'Strasbourg', lat:48.57, lon:7.75,   key:'strasbourg'},
+        {name:'Lille',      lat:50.63, lon:3.07,   key:'paris'},
+        {name:'Rennes',     lat:48.11, lon:-1.68,  key:'nantes'},
+      ];
+      let closest = cities[0], minDist = 999;
+      cities.forEach(c => {
+        const d = Math.sqrt(Math.pow(c.lat-lat,2)+Math.pow(c.lon-lon,2));
+        if(d < minDist) { minDist=d; closest=c; }
+      });
+      this.detectedCityKey = closest.key;
+      return closest.name;
+    },
+
+    findNearbyDests() {
+      const cityKey = (this.detectedCityKey || 'default').toLowerCase();
+      const nearbyData = NEARBY[cityKey] || NEARBY.default;
+      const keys = this.radius === 'international'
+        ? nearbyData.international
+        : [...(nearbyData[50]||[]), ...(this.radius>=100?nearbyData[100]||[]:[]), ...(this.radius>=200?nearbyData[200]||[]:[])];
+
+      const unique = [...new Set(keys)];
+      this.nearbyDests = unique.map(k => {
+        const info = DEST_INFO[k] || {name:k, tag:'Destination', distance:''};
+        return {...info, key:k};
+      });
+      this.screen = 'nearby';
+    },
+
+    selectDest(dest) {
+      this.selectedDest = dest;
+      this.transportLinks = buildTransportLinks(dest.name);
+      this.accomLinks = buildAccomLinks(dest.name, this.profileType);
+      this.screen = 'transport';
+    },
+
+    // ── ONBOARDING ──
+    startOnboarding() {
+      if (this.profileType === 'pro') this.onbFlow = ONB_PRO;
+      else if (this.profileType === 'famille') this.onbFlow = ONB_FAMILLE;
+      else this.onbFlow = ONB_VACANCES;
+      this.chatMessages = [];
+      this.onbStep = 0;
+      this.onbAnswers = [];
+      this.screen = 'onboarding';
+      this.$nextTick(() => this.showNextQuestion());
+    },
+
+    showNextQuestion() {
+      if (this.onbStep >= this.onbFlow.length) {
+        this.finishOnboarding();
+        return;
+      }
+      const step = this.onbFlow[this.onbStep];
+      this.aiTyping = true;
+      this.currentChips = [];
+      setTimeout(() => {
+        this.aiTyping = false;
+        this.chatMessages.push({role:'ai', text: step.q});
+        this.currentChips = step.chips || [];
+        this.currentInputType = step.inputType || 'chips';
+        this.currentPlaceholder = step.placeholder || '';
+        this.$nextTick(() => {
+          const el = document.getElementById('chatScroll');
+          if(el) el.scrollTop = el.scrollHeight;
+        });
+      }, 800);
+    },
+
+    sendChip(chip) {
+      this.chatMessages.push({role:'user', text: chip});
+      this.onbAnswers.push(chip);
+      this.currentChips = [];
+      this.onbStep++;
+      this.$nextTick(() => {
+        const el = document.getElementById('chatScroll');
+        if(el) el.scrollTop = el.scrollHeight;
+      });
+      setTimeout(() => this.showNextQuestion(), 300);
+    },
+
+    sendText() {
+      const text = this.userInput.trim();
+      if (!text) return;
+      this.chatMessages.push({role:'user', text});
+      this.onbAnswers.push(text);
+      this.userInput = '';
+      this.currentChips = [];
+      this.onbStep++;
+      setTimeout(() => this.showNextQuestion(), 300);
+    },
+
+    finishOnboarding() {
+      this.aiTyping = true;
+      this.chatMessages.push({role:'ai', text:'✅ Parfait ! Je crée votre voyage personnalisé...'});
+      this.screen = 'generating';
+      this.generatingMsg = 'Sélection des meilleures expériences pour vous...';
+
+      setTimeout(() => {
+        this.generatingMsg = 'Recherche des activités selon la météo...';
+      }, 1000);
+      setTimeout(() => {
+        this.generatingMsg = 'Ajout des liens de réservation...';
+      }, 2000);
+      setTimeout(() => {
+        // Detect destination from answers
+        const lastAnswer = this.onbAnswers[this.onbAnswers.length-1] || '';
+        const destKey = this.detectDestKey(lastAnswer);
+        const destInfo = DEST_INFO[destKey] || {name: lastAnswer || 'Votre destination', key: destKey};
+
+        if (!this.selectedDest) {
+          this.selectedDest = {key: destKey, name: destInfo.name};
+          this.transportLinks = buildTransportLinks(destInfo.name);
+          this.accomLinks = buildAccomLinks(destInfo.name, this.profileType);
+        }
+
+        const trip = buildItinerary(destKey, this.profileType, this.onbAnswers);
+        trip.destKey = destKey;
+        this.currentTrip = trip;
+        this.currentWeather = this.getWeather(destKey);
+
+        this.savedTrips.push(trip);
+        this.saveTrips();
+        this.hasSaved = true;
+        this.aiTyping = false;
+        this.screen = 'trip-detail';
+      }, 3200);
+    },
+
+    detectDestKey(text) {
+      text = (text || '').toLowerCase();
+      const map = {
+        'paris':'paris','rome':'rome','roma':'rome','barcelone':'barcelone','barcelona':'barcelone',
+        'tokyo':'tokyo','bali':'bali','new york':'new_york','new-york':'new_york','amsterdam':'amsterdam',
+        'marrakech':'maroc','maroc':'maroc','lisbonne':'lisbonne','lisboa':'lisbonne',
+        'annecy':'annecy','nice':'nice','bordeaux':'bordeaux','marseille':'marseille',
+        'lyon':'lyon','versailles':'versailles','cannes':'cannes','monaco':'monaco',
+        'budapest':'default','prague':'default','vienne':'default','venise':'default',
+        'surprise':'paris',
+      };
+      for (const [k,v] of Object.entries(map)) {
+        if (text.includes(k)) return v;
+      }
+      return 'paris';
+    },
+
+    getWeather(destKey) {
+      const month = new Date().getMonth();
+      const season = month>=3&&month<=5?'spring':month>=6&&month<=8?'summer':month>=9&&month<=11?'autumn':'winter';
+      const wd = WEATHER_DATA[destKey] || WEATHER_DATA.default;
+      return wd[season] || wd.summer;
+    },
+
+    getTransportLinks(type) {
+      if (this.selectedDest) return (buildTransportLinks(this.selectedDest.name))[type] || [];
+      return (buildTransportLinks('Paris'))[type] || [];
+    },
+
+    getAccomLinks(type) {
+      if (this.selectedDest) return (buildAccomLinks(this.selectedDest.name, this.profileType))[type] || [];
+      return (buildAccomLinks('Paris', this.profileType))[type] || [];
+    },
+
+    // ── TRIPS ──
+    openTrip(trip) {
+      this.currentTrip = trip;
+      this.selectedDest = {key: trip.destKey, name: trip.name};
+      this.currentWeather = this.getWeather(trip.destKey);
+      this.transportLinks = buildTransportLinks(trip.name);
+      this.accomLinks = buildAccomLinks(trip.name, this.profileType);
+      this.screen = 'trip-detail';
+    },
+
+    quickPlan(dest) {
+      this.selectedDest = dest;
+      this.transportLinks = buildTransportLinks(dest.name);
+      this.accomLinks = buildAccomLinks(dest.name, this.profileType);
+      const trip = buildItinerary(dest.key, this.profileType, []);
+      trip.destKey = dest.key;
+      this.currentTrip = trip;
+      this.currentWeather = this.getWeather(dest.key);
+      this.savedTrips.push(trip);
+      this.saveTrips();
+      this.screen = 'trip-detail';
+    },
+
+    loadSavedTrips() {
+      this.screen = 'home';
+    },
+
+    goBack() {
+      this.screen = this.savedTrips.length ? 'home' : 'nearby';
+    },
+
+    saveTrips() {
+      localStorage.setItem('escale_v3', JSON.stringify({
+        trips: this.savedTrips,
+        profileType: this.profileType,
+      }));
+    },
+  };
+}
+</script>
+</body>
+</html>
